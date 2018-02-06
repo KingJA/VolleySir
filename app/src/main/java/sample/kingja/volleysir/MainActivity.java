@@ -8,7 +8,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.kingja.volleysir.GsonRequest;
 import com.kingja.volleysir.VolleySir;
 
@@ -69,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
                 .setUrl("http://10.1.6.107:3000/mock/11/tagFilter")
                 .setMethod(Request.Method.PUT)
                 .setParam(param)
+                .setTag(this)
                 .build();
-        VolleySir.getDefault().addRequest(request, this);
+        VolleySir.getDefault().addRequest(request);
     }
 
     @Override

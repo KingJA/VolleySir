@@ -28,6 +28,7 @@ public class GsonRequest<T> extends Request<T> {
         this.clazz = builder.clazz;
         this.listener = builder.listener;
         this.params = builder.params;
+        setTag(builder.tag);
     }
 
     private GsonRequest(int method, String url, Response.ErrorListener listener) {
@@ -53,6 +54,7 @@ public class GsonRequest<T> extends Request<T> {
 
     public static class Builder<T> {
         private String url;
+        private Object tag;
         private Class<T> clazz;
         private int method = Method.POST;
         private Response.Listener<T> listener;
@@ -82,6 +84,12 @@ public class GsonRequest<T> extends Request<T> {
             this.method = method;
             return this;
         }
+
+        public Builder setTag(Object tag) {
+            this.tag = tag;
+            return this;
+        }
+
 
         public Builder<T> setResponseListener(Response.Listener<T> listener) {
             this.listener = listener;
