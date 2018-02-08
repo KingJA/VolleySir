@@ -9,6 +9,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,6 +21,10 @@ import java.util.Map;
 public class GsonRequest<T> extends Request<T> {
 
     private Class<T> clazz;
+    /**
+     * Lock to guard mListener as it is cleared on cancel() and read on delivery.
+     */
+    private final Object mLock = new Object();
     private Response.Listener<T> listener;
     private Map<String, String> params;
 
@@ -48,8 +53,30 @@ public class GsonRequest<T> extends Request<T> {
     }
 
     @Override
+    public void cancel() {
+        super.cancel();
+        synchronized (mLock) {
+            listener = null;
+        }
+    }
+
+    @Override
+    public Map<String, String> getHeaders() throws AuthFailureError {
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("Charset", "UTF-8");
+        headers.put("Accept-Encoding", "gzip,deflate");
+        return headers;
+    }
+
+    @Override
     protected void deliverResponse(T response) {
-        listener.onResponse(response);
+        Response.Listener<T> listener;
+        synchronized (mLock) {
+            listener = this.listener;
+        }
+        if (listener != null) {
+            listener.onResponse(response);
+        }
     }
 
     public static class Builder<T> {

@@ -24,52 +24,50 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         VolleySir.getDefault().init(this);
         setContentView(R.layout.activity_main);
-        put();
+//        get();
+        post();
     }
 
     private void get() {
-        GsonRequest request = new GsonRequest.Builder<Result>()
-                .setResponseType(Result.class)
-                .setResponseListener(new Response.Listener<Result>() {
+
+        VolleySir.getDefault().load("http://10.1.6.107:8001/tagFilter", Request.Method.GET, Result.class, new
+                Response.Listener<Result>() {
                     @Override
                     public void onResponse(Result response) {
                         Log.e(TAG, "onResponse: " + response.toString());
                     }
-                })
-                .setErrorListener(new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: " + error.toString());
-                    }
-                })
-                .setUrl("http://10.1.6.107:3000/mock/11/tag")
-                .setMethod(Request.Method.GET)
-                .build();
-        mQueue.add(request);
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: " + error.toString());
+            }
+        }, this);
     }
 
-    private void put() {
+    private void post() {
         Map<String, String> param = new HashMap<>();
-        param.put("tagid", "10086");
+        param.put("tagid", "666");
+        param.put("status", "1");
         GsonRequest request = new GsonRequest.Builder<AddTag>()
                 .setResponseType(AddTag.class)
                 .setResponseListener(new Response.Listener<AddTag>() {
                     @Override
                     public void onResponse(AddTag response) {
-                        Log.e(TAG, "onResponse: " + response.toString());
+                        Log.e(TAG, "【成功响应】: " + response.toString());
                     }
                 })
                 .setErrorListener(new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: " + error.toString());
+                        Log.e(TAG, "【失败响应】: " + error.toString());
                     }
                 })
-                .setUrl("http://10.1.6.107:3000/mock/11/tagFilter")
-                .setMethod(Request.Method.PUT)
+                .setUrl("http://10.1.6.107:8001/tagFilter/update")
+                .setMethod(Request.Method.POST)
                 .setParam(param)
                 .setTag(this)
                 .build();
+        request.setShouldCache(true);
         VolleySir.getDefault().addRequest(request);
     }
 

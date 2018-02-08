@@ -119,6 +119,7 @@ public class BasicNetwork implements Network {
 
     @Override
     public NetworkResponse performRequest(Request<?> request) throws VolleyError {
+        //返回的是系统从启动到现在的时间
         long requestStart = SystemClock.elapsedRealtime();
         while (true) {
             HttpResponse httpResponse = null;
@@ -133,6 +134,7 @@ public class BasicNetwork implements Network {
 
                 responseHeaders = httpResponse.getHeaders();
                 // Handle cache validation.
+                //304
                 if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
                     Entry entry = request.getCacheEntry();
                     if (entry == null) {

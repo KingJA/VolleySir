@@ -16,6 +16,7 @@
 
 package com.android.volley;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,20 @@ public interface Cache {
         /** True if a refresh is needed from the original data source. */
         public boolean refreshNeeded() {
             return this.softTtl < System.currentTimeMillis();
+        }
+
+        @Override
+        public String toString() {
+            return "Entry{" +
+                    "data=" + Arrays.toString(data) +
+                    ", etag='" + etag + '\'' +
+                    ", serverDate=" + serverDate +
+                    ", lastModified=" + lastModified +
+                    ", ttl=" + ttl +
+                    ", softTtl=" + softTtl +
+                    ", responseHeaders=" + responseHeaders +
+                    ", allResponseHeaders=" + allResponseHeaders +
+                    '}';
         }
     }
 

@@ -1,12 +1,10 @@
 package com.kingja.volleysir;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
 /**
@@ -53,7 +51,7 @@ public class VolleySir {
         mQueue.cancelAll(tag);
     }
 
-    public <T> void createRequest(String url, int method, Class<T> clazz, Response.Listener<T> listener, Response
+    public <T> void load(String url, int method, Class<T> clazz, Response.Listener<T> listener, Response
             .ErrorListener errorListener, Object tag) {
         GsonRequest request = new GsonRequest.Builder<T>()
                 .setResponseType(clazz)
@@ -66,9 +64,9 @@ public class VolleySir {
         mQueue.add(request);
     }
 
-    public <T> void createRequest(String url, Class<T> clazz, Response.Listener<T> listener, Response
+    public <T> void load(String url, Class<T> clazz, Response.Listener<T> listener, Response
             .ErrorListener errorListener, Object tag) {
-        createRequest(url, Request.Method.POST, clazz, listener, errorListener, tag);
+        load(url, Request.Method.POST, clazz, listener, errorListener, tag);
     }
 
 }

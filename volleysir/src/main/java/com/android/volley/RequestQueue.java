@@ -244,6 +244,11 @@ public class RequestQueue {
 
     }
 
+    /**
+     * 允许多个RequestFinishedListener，因为requestQuest可能只有一个，但是多个界面会监听这个队列，因此对应多个监听器
+     * @param listener
+     * @param <T>
+     */
     public  <T> void addRequestFinishedListener(RequestFinishedListener<T> listener) {
       synchronized (mFinishedListeners) {
         mFinishedListeners.add(listener);

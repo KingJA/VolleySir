@@ -57,6 +57,7 @@ public class ExecutorDelivery implements ResponseDelivery {
 
     @Override
     public void postResponse(Request<?> request, Response<?> response, Runnable runnable) {
+        ////再次标记已经进行响应
         request.markDelivered();
         request.addMarker("post-response");
         mResponsePoster.execute(new ResponseDeliveryRunnable(request, response, runnable));
@@ -102,6 +103,7 @@ public class ExecutorDelivery implements ResponseDelivery {
             }
 
             // Deliver a normal response or error, depending.
+            //没有错误(error=null)则进行成功响应，否则进行错误响应
             if (mResponse.isSuccess()) {
                 mRequest.deliverResponse(mResponse.result);
             } else {

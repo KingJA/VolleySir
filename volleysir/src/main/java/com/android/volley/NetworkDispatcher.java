@@ -21,12 +21,13 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.util.concurrent.BlockingQueue;
 
 /**
  * Provides a thread for performing network dispatch from a queue of requests.
- *
+ * <p>
  * Requests added to the specified queue are processed from the network via a
  * specified {@link Network} interface. Responses are committed to cache, if
  * eligible, using a specified {@link Cache} interface. Valid responses and
@@ -34,28 +35,38 @@ import java.util.concurrent.BlockingQueue;
  */
 public class NetworkDispatcher extends Thread {
 
-    /** The queue of requests to service. */
+    /**
+     * The queue of requests to service.
+     */
     private final BlockingQueue<Request<?>> mQueue;
-    /** The network interface for processing requests. */
+    /**
+     * The network interface for processing requests.
+     */
     private final Network mNetwork;
-    /** The cache to write to. */
+    /**
+     * The cache to write to.
+     */
     private final Cache mCache;
-    /** For posting responses and errors. */
+    /**
+     * For posting responses and errors.
+     */
     private final ResponseDelivery mDelivery;
-    /** Used for telling us to die. */
+    /**
+     * Used for telling us to die.
+     */
     private volatile boolean mQuit = false;
 
     /**
      * Creates a new network dispatcher thread.  You must call {@link #start()}
      * in order to begin processing.
      *
-     * @param queue Queue of incoming requests for triage
-     * @param network Network interface to use for performing requests
-     * @param cache Cache interface to use for writing responses to cache
+     * @param queue    Queue of incoming requests for triage
+     * @param network  Network interface to use for performing requests
+     * @param cache    Cache interface to use for writing responses to cache
      * @param delivery Delivery interface to use for posting responses
      */
     public NetworkDispatcher(BlockingQueue<Request<?>> queue,
-            Network network, Cache cache, ResponseDelivery delivery) {
+                             Network network, Cache cache, ResponseDelivery delivery) {
         mQueue = queue;
         mNetwork = network;
         mCache = cache;
@@ -108,20 +119,25 @@ public class NetworkDispatcher extends Thread {
 
             // If the request was cancelled already, do not perform the
             // network request.
+            //1.如果已经取消则直接完成请求
             if (request.isCanceled()) {
                 request.finish("network-discard-cancelled");
+                //触发没有响应的监听器
                 request.notifyListenerResponseNotUsable();
                 return;
             }
-
+            //流量统计的工具类,下面的方法是用来统计某个线程或者Socket产生的流量数据，可以通过DDMS 工具来分析网络的使用情况
             addTrafficStatsTag(request);
 
             // Perform the network request.
+            //2.执行网络请求，用 BasicNetwork(new HurlStack())，底层执行HttpURLConnection来执行网络请求工作，这里是对象适配器模式
+            Log.e("【网络线程】", "开始请求" );
             NetworkResponse networkResponse = mNetwork.performRequest(request);
             request.addMarker("network-http-complete");
 
             // If the server returned 304 AND we delivered a response already,
             // we're done -- don't deliver a second identical response.
+            // 状态码是304并且已经响应过了(mResponseDelivered = true;)，则直接无响应完结
             if (networkResponse.notModified && request.hasHadResponseDelivered()) {
                 request.finish("not-modified");
                 request.notifyListenerResponseNotUsable();
@@ -129,28 +145,36 @@ public class NetworkDispatcher extends Thread {
             }
 
             // Parse the response here on the worker thread.
+            //解析响应
             Response<?> response = request.parseNetworkResponse(networkResponse);
             request.addMarker("network-parse-complete");
 
             // Write to cache if applicable.
             // TODO: Only update cache metadata instead of entire record for 304s.
+            //如果请求需要缓存，并且有响应头有缓存，则进行缓存
             if (request.shouldCache() && response.cacheEntry != null) {
+                Log.e("【网络线程】", String.format("进行缓存=[Key=%s, value=%s]",request.getCacheKey(),response.cacheEntry) );
                 mCache.put(request.getCacheKey(), response.cacheEntry);
                 request.addMarker("network-cache-written");
             }
-
             // Post the response back.
+            //标记已经进行响应
             request.markDelivered();
+            // new ExecutorDelivery(new Handler(Looper.getMainLooper()))) 进行响应
             mDelivery.postResponse(request, response);
+            //进项有响应回调
             request.notifyListenerResponseReceived(response);
         } catch (VolleyError volleyError) {
             volleyError.setNetworkTimeMs(SystemClock.elapsedRealtime() - startTimeMs);
+            //进行错误响应
             parseAndDeliverNetworkError(request, volleyError);
+            //进行无响应回调
             request.notifyListenerResponseNotUsable();
         } catch (Exception e) {
             VolleyLog.e(e, "Unhandled exception %s", e.toString());
             VolleyError volleyError = new VolleyError(e);
             volleyError.setNetworkTimeMs(SystemClock.elapsedRealtime() - startTimeMs);
+            //进行错误响应
             mDelivery.postError(request, volleyError);
             request.notifyListenerResponseNotUsable();
         }
