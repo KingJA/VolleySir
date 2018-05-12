@@ -18,7 +18,7 @@ import java.util.Map;
  * Author:KingJA
  * Email:kingjavip@gmail.com
  */
-public class GsonRequest<T> extends Request<T> {
+public class GRequest<T> extends Request<T> {
 
     private Class<T> clazz;
     /**
@@ -26,18 +26,11 @@ public class GsonRequest<T> extends Request<T> {
      */
     private final Object mLock = new Object();
     private Response.Listener<T> listener;
-    private Map<String, String> params;
 
-    public GsonRequest(Builder builder) {
-        this(builder.method, builder.url, builder.errorListener);
-        this.clazz = builder.clazz;
-        this.listener = builder.listener;
-        this.params = builder.params;
-        setTag(builder.tag);
-    }
 
-    private GsonRequest(int method, String url, Response.ErrorListener listener) {
+    public GRequest(int method, String url, Response.ErrorListener listener, Class<T> clazz) {
         super(method, url, listener);
+        this.clazz = clazz;
     }
 
     @Override
@@ -79,62 +72,4 @@ public class GsonRequest<T> extends Request<T> {
         }
     }
 
-    public static class Builder<T> {
-        private String url;
-        private Object tag;
-        private Class<T> clazz;
-        private int method = Method.POST;
-        private Response.Listener<T> listener;
-        private Response.ErrorListener errorListener;
-        private Map<String, String> params;
-
-        public GsonRequest<T> build() {
-            return new GsonRequest<T>(this);
-        }
-
-        public Builder setUrl(String url) {
-            this.url = url;
-            return this;
-        }
-
-        public Builder setParam(Map<String, String> params) {
-            this.params = params;
-            return this;
-        }
-
-        public Builder<T> setResponseType(Class<T> clazz) {
-            this.clazz = clazz;
-            return this;
-        }
-
-        public Builder setMethod(int method) {
-            this.method = method;
-            return this;
-        }
-
-        public Builder setTag(Object tag) {
-            this.tag = tag;
-            return this;
-        }
-
-
-        public Builder<T> setResponseListener(Response.Listener<T> listener) {
-            this.listener = listener;
-            return this;
-        }
-
-        public Builder setErrorListener(Response.ErrorListener errorListener) {
-            this.errorListener = errorListener;
-            return this;
-        }
-    }
-
-    @Override
-    public Map<String, String> getParams()  {
-        if (params != null) {
-            return params;
-        } else {
-            return super.getParams();
-        }
-    }
 }

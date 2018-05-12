@@ -4,11 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="sample.kingja.volleysir.MainActivity">
+    tools:context="sample.kingja.volleysir.MainActivity"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <Button
+        android:text="post请求"
+        android:onClick="doPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:text="get请求"
+        android:onClick="doGet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/tv_method"
+        android:layout_margin="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
-
+        android:text="请求结果:"/>
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

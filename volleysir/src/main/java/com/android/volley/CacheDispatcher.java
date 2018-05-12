@@ -144,9 +144,10 @@ public class CacheDispatcher extends Thread {
             Log.e("【缓存线程】", "没有缓存" );
             request.addMarker("cache-miss");
             // Cache miss; send off to the network dispatcher.
-            if (!mWaitingRequestManager.maybeAddToWaitingRequests(request)) {
-                mNetworkQueue.put(request);
-            }
+//            if (!mWaitingRequestManager.maybeAddToWaitingRequests(request)) {
+//                mNetworkQueue.put(request);
+//            }
+            mNetworkQueue.put(request);
             return;
         }
         //缓存失效则加入网络请求队列

@@ -1,7 +1,5 @@
 package sample.kingja.volleysir;
 
-import java.util.List;
-
 /**
  * Description:TODO
  * Create Time:2018/2/5 13:13
@@ -10,15 +8,16 @@ import java.util.List;
  */
 public class Result {
 
+
     /**
      * status : 0
-     * message : 请求完成
-     * data : [{"tagId":9999,"tagDate":"2013-12-10 23:13:00","baseStation":484626,"content":"3LYQO0"}]
+     * message : 操作成功
+     * data : {"name":"kingja","age":18}
      */
 
     private int status;
     private String message;
-    private List<DataBean> data;
+    private DataBean data;
 
     public int getStatus() {
         return status;
@@ -36,67 +35,54 @@ public class Result {
         this.message = message;
     }
 
-    public List<DataBean> getData() {
+    public DataBean getData() {
         return data;
     }
 
-    public void setData(List<DataBean> data) {
+    public void setData(DataBean data) {
         this.data = data;
     }
 
     public static class DataBean {
         /**
-         * tagId : 9999
-         * tagDate : 2013-12-10 23:13:00
-         * baseStation : 484626
-         * content : 3LYQO0
+         * name : kingja
+         * age : 18
          */
 
-        private int tagId;
-        private String tagDate;
-        private int baseStation;
-        private String content;
+        private String name;
+        private int age;
 
-        public int getTagId() {
-            return tagId;
+        public String getName() {
+            return name;
         }
 
-        public void setTagId(int tagId) {
-            this.tagId = tagId;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public String getTagDate() {
-            return tagDate;
+        public int getAge() {
+            return age;
         }
 
-        public void setTagDate(String tagDate) {
-            this.tagDate = tagDate;
+        public void setAge(int age) {
+            this.age = age;
         }
 
-        public int getBaseStation() {
-            return baseStation;
-        }
-
-        public void setBaseStation(int baseStation) {
-            this.baseStation = baseStation;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
+        @Override
+        public String toString() {
+            return "{" +
+                    "name:'" + name + '\'' +
+                    ", age:" + age +
+                    '}';
         }
     }
 
-
     @Override
     public String toString() {
-        return "Result{" +
-                "status=" + status +
-                ", message='" + message + '\'' +
-                ", data=" + data +
+        return "{" +
+                "status:" + status +
+                ", message:'" + message + '\'' +
+                ", user:" + data +
                 '}';
     }
 }

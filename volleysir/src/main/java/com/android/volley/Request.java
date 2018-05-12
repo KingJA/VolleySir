@@ -87,7 +87,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * URL of this request.
      */
-    private final String mUrl;
+    private  String mUrl;
 
     /**
      * Default tag for {@link TrafficStats}.
@@ -331,6 +331,10 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         return mUrl;
     }
 
+    public void setUrl(String url) {
+        this.mUrl = url;
+    }
+
     /**
      * Returns the cache key for this request.  By default, this is the URL.
      */
@@ -468,7 +472,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      *
      * @throws AuthFailureError in the event of auth failure
      */
-    protected Map<String, String> getParams() throws AuthFailureError {
+    public Map<String, String> getParams() {
         return null;
     }
 

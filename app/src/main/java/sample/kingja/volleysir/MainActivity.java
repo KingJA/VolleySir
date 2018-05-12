@@ -1,8 +1,11 @@
 package sample.kingja.volleysir;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,53 +19,54 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private RequestQueue mQueue;
+    private TextView tv_result;
+    private TextView tv_method;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         VolleySir.getDefault().init(this);
         setContentView(R.layout.activity_main);
-//        get();
-        post();
+        progressDialog = new ProgressDialog(this);
+        tv_result = findViewById(R.id.tv_result);
+        tv_method = findViewById(R.id.tv_method);
     }
 
-    private void get() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        VolleySir.getDefault().cancle(this);
+    }
 
-        VolleySir.getDefault().load("http://10.1.6.107:8001/tagFilter", Request.Method.GET, Result.class, new
-                Response.Listener<Result>() {
+    public void doPost(View view) {
+        progressDialog.show();
+        tv_result.setText("");
+        tv_method.setText("Post请求");
+        Map<String, String> param = new HashMap<>();
+        param.put("name", "postman");
+        param.put("age", "19");
+        GsonRequest request = new GsonRequest.Builder<Result>()
+                .setResponseType(Result.class)
+                .setResponseListener(new Response.Listener<Result>() {
                     @Override
                     public void onResponse(Result response) {
-                        Log.e(TAG, "onResponse: " + response.toString());
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse: " + error.toString());
-            }
-        }, this);
-    }
+                        progressDialog.dismiss();
+                        tv_result.setText(response.toString());
 
-    private void post() {
-        Map<String, String> param = new HashMap<>();
-        param.put("tagid", "666");
-        param.put("status", "1");
-        GsonRequest request = new GsonRequest.Builder<AddTag>()
-                .setResponseType(AddTag.class)
-                .setResponseListener(new Response.Listener<AddTag>() {
-                    @Override
-                    public void onResponse(AddTag response) {
-                        Log.e(TAG, "【成功响应】: " + response.toString());
                     }
                 })
                 .setErrorListener(new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "【失败响应】: " + error.toString());
+                        progressDialog.dismiss();
+                        tv_result.setText(error.toString());
                     }
                 })
-                .setUrl("http://10.1.6.107:8001/tagFilter/update")
+                .setUrl("http://10.1.3.189/api/post")
                 .setMethod(Request.Method.POST)
                 .setParam(param)
                 .setTag(this)
@@ -71,9 +75,51 @@ public class MainActivity extends AppCompatActivity {
         VolleySir.getDefault().addRequest(request);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        VolleySir.getDefault().cancle(this);
+    public void doGet(View view) {
+//        progressDialog.show();
+//        tv_result.setText("");
+//        tv_method.setText("Get请求");
+//        VolleySir.getDefault().load("http://10.1.3.189/api/get?name=getman&age=16", Request.Method.GET, Result.class,
+//                new Response.Listener<Result>() {
+//                            @Override
+//                            public void onResponse(Result response) {
+//                                progressDialog.dismiss();
+//                                tv_result.setText(response.toString());
+//                            }
+//                        }, new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        progressDialog.dismiss();
+//                        tv_result.setText(error.toString());
+//                    }
+//                }, this);
+
+        progressDialog.show();
+        Map<String, String> param = new HashMap<>();
+        param.put("name", "getman");
+        param.put("age", "11");
+        GsonRequest request = new GsonRequest.Builder<Result>()
+                .setResponseType(Result.class)
+                .setResponseListener(new Response.Listener<Result>() {
+                    @Override
+                    public void onResponse(Result response) {
+                        progressDialog.dismiss();
+                        tv_result.setText(response.toString());
+
+                    }
+                })
+                .setErrorListener(new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressDialog.dismiss();
+                        tv_result.setText(error.toString());
+                    }
+                })
+                .setUrl("http://10.1.3.189/api/get")
+                .setMethod(Request.Method.GET)
+                .setParam(param)
+                .setTag(this)
+                .build();
+        VolleySir.getDefault().addRequest(request);
     }
 }

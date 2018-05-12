@@ -26,8 +26,10 @@ import com.android.volley.Request.Method;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +82,7 @@ public class HurlStack extends BaseHttpStack {
     @Override
     public HttpResponse executeRequest(Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
+        addGetParams(request);
         String url = request.getUrl();
         HashMap<String, String> map = new HashMap<>();
         map.putAll(request.getHeaders());
@@ -252,6 +255,22 @@ public class HurlStack extends BaseHttpStack {
             default:
                 throw new IllegalStateException("Unknown method type.");
         }
+    }
+
+    private static void addGetParams(Request<?> request) {
+        if (request.getParams() != null&&request.getMethod()==Method.GET) {
+            StringBuilder url = new StringBuilder(request.getUrl());
+            url.append("?");
+            for (Map.Entry<String, String> entry : request.getParams().entrySet()) {
+                url.append(entry.getKey());
+                url.append('=');
+                url.append(entry.getValue());
+                url.append('&');
+            }
+            Log.e("新的URL:", url.toString());
+            request.setUrl(url.toString());
+        }
+
     }
 
     private static void addBodyIfExists(HttpURLConnection connection, Request<?> request)
